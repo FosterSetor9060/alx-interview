@@ -15,11 +15,9 @@ def validUTF8(data):
     num_bytes = 0
 
     for byte in data:
-        # Get the binary representation of the byte, keeping only the last 8 bits
         binary_rep = format(byte, '#010b')[-8:]
 
         if num_bytes == 0:
-            # Count the number of leading 1's to determine the number of bytes in this UTF-8 character
             if binary_rep[0] == '1':
                 num_bytes = len(binary_rep.split('0')[0])
 
