@@ -15,14 +15,19 @@ def validUTF8(data):
     num_bytes = 0
 
     for byte in data:
+        # Convert to binary and keep only the last 8 bits
         bin_rep = format(byte, '08b')
 
         if num_bytes == 0:
+            # Determine the number of bytes in the sequence
             if bin_rep[0] == '1':
                 num_bytes = len(bin_rep.split('0')[0])
+
+            # Single-byte character
             if num_bytes == 0:
                 continue
 
+            # Invalid initial byte if it starts with '10' or has more than 4 leading '1's
             if num_bytes == 1 or num_bytes > 4:
                 return False
         else:
