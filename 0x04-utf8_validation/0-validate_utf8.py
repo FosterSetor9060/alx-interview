@@ -4,27 +4,33 @@
 
 def validUTF8(data):
     """
-        Check that a sequence of byte values follows the UTF-8 encoding
-        rules.  Does not check for canonicalization (i.e. overlong encodings
-        are acceptable).
-        """
+    Check if a given list of integers represents a valid UTF-8 encoding.
+    
+    Args:
+        data (list): A list of integers representing the data to validate.
+        
+    Returns:
+        bool: True if the data is a valid UTF-8 encoding, False otherwise.
+    """
+    num_bytes = 0
 
-    data = iter(data)
-    for leading_byte in data:
-        leading_ones = _count_leading_ones(leading_byte)
-        if leading_ones in [1, 7, 8]:
-            return False
-        for _ in range(leading_ones - 1):
-            trailing_byte = next(data, None)
-            if trailing_byte is None or trailing_byte >> 6 != 0b10:
+    for byte in data:
+        binary_rep = format(byte, '#010b')[-8:]
+
+        if num_bytes == 0:
+            if binary_rep[0] == '1':
+                num_bytes = len(binary_rep.split('0')[0])
+
+            if num_bytes == 0:
+                continue
+
+            if num_bytes == 1 or num_bytes > 4:
                 return False
-    return True
+        else:
+            if not (binary_rep[0:2] == '10'):
+                return False
 
+        num_bytes -= 1
 
-def _count_leading_ones(byte):
-    """Counts the leading ones."""
+    return num_bytes == 0
 
-    for i in range(8):
-        if byte >> 7 - i == 0b11111111 >> 7 - i & ~1:
-            return i
-    return 8
