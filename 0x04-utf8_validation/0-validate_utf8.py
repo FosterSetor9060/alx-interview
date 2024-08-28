@@ -1,30 +1,47 @@
 #!/usr/bin/python3
-"""UTF-8 validatn"""
+"""UTF-8 Validation"""
 
 
 def validUTF8(data):
     """
-        Check that a sequence of byte values follows the UTF-8 encoding
-        rules.  Does not check for canonicalization (i.e. overlong encodings
-        are acceptable).
-        """
+    Check if the data set represents a valid UTF-8 encoding.
+    """
+    num_bytes = 0  # Number of bytes in the current UTF-8 character
 
-    data = iter(data)
-    for leading_byte in data:
-        leading_ones = _count_leading_ones(leading_byte)
-        if leading_ones in [1, 7, 8]:
-            return False
-        for _ in range(leading_ones - 1):
-            trailing_byte = next(data, None)
-            if trailing_byte is None or trailing_byte >> 6 != 0b10:
+    # Masks to check the leading bits of a byte
+    mask1 = 1 << 7   # 10000000
+    mask2 = 1 << 6   # 01000000
+
+    for byte in data:
+        if num_bytes == 0:
+            # Check how many leading 1s are in the first byte
+            mask = 1 << 7
+            while byte & mask:
+                num_bytes += 1
+                mask >>= 1
+
+            # 1-byte character
+            if num_bytes == 0:
+                continue
+
+            # Invalid cases
+            if num_bytes == 1 or num_bytes > 4:
                 return False
-    return True
+        else:
+            # Check that the byte is a valid continuation byte (10xxxxxx)
+            if not (byte & mask1 and not (byte & mask2)):
+                return False
+
+        num_bytes -= 1
+
+    return num_bytes == 0
 
 
-def _count_leading_ones(byte):
-    """Counts the leading ones."""
+# Test cases
+if __name__ == "__main__":
+    data1 = [65]  # Valid UTF-8
+    print(validUTF8(data1))  # True
 
-    for i in range(8):
-        if byte >> 7 - i == 0b11111111 >> 7 - i & ~1:
-            return i
-    return 8
+    data2 = [229, 65, 127, 256]  # Invalid UTF-8
+    print(validUTF8(data2))  # False
+
