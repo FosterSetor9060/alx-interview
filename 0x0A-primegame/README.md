@@ -28,3 +28,4 @@ What Is Dynamic Programming With Python Examples
 Python Official Documentation:
 Python Lists
 By grasping these concepts and using the recommended resources, you’ll be well-equipped to approach the problem with a solid understanding of both the mathematical and programming challenges involved.
+Author: Foster Setor
